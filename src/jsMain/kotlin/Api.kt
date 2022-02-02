@@ -26,3 +26,21 @@ suspend fun addShoppingListItem(shoppingListItem: ShoppingListItem) {
 suspend fun deleteShoppingListItem(shoppingListItem: ShoppingListItem) {
     jsonClient.delete<Unit>(endpoint + ShoppingListItem.path + "/${shoppingListItem.id}")
 }
+
+
+
+
+suspend fun getTodoList(): List<TodoListItem> {
+    return jsonClient.get(endpoint + TodoListItem.path)
+}
+
+suspend fun addTodoListItem(todoListItem: TodoListItem) {
+    jsonClient.post<Unit>(endpoint + TodoListItem.path) {
+        contentType(ContentType.Application.Json)
+        body = todoListItem
+    }
+}
+
+suspend fun deleteTodoListItem(todoListItem: TodoListItem) {
+    jsonClient.delete<Unit>(endpoint + TodoListItem.path + "/${todoListItem.id}")
+}

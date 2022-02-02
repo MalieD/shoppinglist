@@ -4,7 +4,8 @@ val kotlinVersion = "1.5.31"
 val serializationVersion = "1.3.0"
 val ktorVersion = "1.6.7"
 val logbackVersion = "1.2.3"
-val reactVersion = "17.0.2-pre.265-kotlin-1.5.31"
+val reactVersion = "17.0.2"
+val reactVersionExtended = "$reactVersion-pre.265-kotlin-1.5.31"
 val kmongoVersion = "4.3.0"
 
 plugins {
@@ -59,8 +60,24 @@ kotlin {
                 implementation("io.ktor:ktor-client-json:$ktorVersion")
                 implementation("io.ktor:ktor-client-serialization:$ktorVersion")
 
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$reactVersion")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$reactVersion")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$reactVersionExtended")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$reactVersionExtended")
+                implementation(npm("react", reactVersion))
+                implementation(npm("react-dom", reactVersion))
+
+                //Kotlin Styled (chapter 3)
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-styled:5.3.3-pre.265-kotlin-1.5.31")
+                implementation(npm("styled-components", "~5.3.3"))
+
+                //Video Player (chapter 7)
+                implementation(npm("react-youtube-lite", "1.1.0"))
+
+                //Share Buttons (chapter 7)
+                implementation(npm("react-share", "4.4.0"))
+
+                //Coroutines & serialization (chapter 8)
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
             }
         }
     }

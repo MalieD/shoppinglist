@@ -15,11 +15,22 @@ import com.mongodb.ConnectionString
 
 
 fun main() {
-    val client = KMongo.createClient().coroutine
-    val database = client.getDatabase("shoppingList")
+    val connectionString: ConnectionString? = System.getenv("MONGODB_URI")?.let {
+        ConnectionString("$it?retryWrites=false")
+    }
+//    val client = KMongo.createClient().coroutine
+//    val database = client.getDatabase("shoppingList")
+    val client = if (connectionString != null) KMongo.createClient(connectionString).coroutine else KMongo.createClient().coroutine
+
+    val database= client.getDatabase(connectionString?.database ?: "shoppingList")
     val collection = database.getCollection<ShoppingListItem>()
 
-    embeddedServer(Netty, 9090) {
+    val todoDB= client.getDatabase(connectionString?.database ?: "todoList")
+    val todoCollection = todoDB.getCollection<TodoListItem>()
+
+    val port = System.getenv("PORT")?.toInt() ?: 9090
+
+    embeddedServer(Netty, port) {
         install(ContentNegotiation) {
             json()
         }
@@ -38,12 +49,37 @@ fun main() {
                     call.respond(collection.find().toList())
                 }
                 post {
-                    collection.insertOne(call.receive<ShoppingListItem>())
+                    collection.insertOne(call.receive())
                     call.respond(HttpStatusCode.OK)
                 }
                 delete("/{id}") {
                     val id = call.parameters["id"]?.toInt() ?: error("Invalid delete request")
                     collection.deleteOne(ShoppingListItem::id eq id)
+                    call.respond(HttpStatusCode.OK)
+                }
+            }
+            get("/") {
+                call.respondText(
+                    this::class.java.classLoader.getResource("index.html")!!.readText(),
+                    ContentType.Text.Html
+                )
+            }
+            static("/") {
+                resources("")
+            }
+        }
+        routing {
+            route(TodoListItem.path) {
+                get {
+                    call.respond(todoCollection.find().toList())
+                }
+                post {
+                    todoCollection.insertOne(call.receive())
+                    call.respond(HttpStatusCode.OK)
+                }
+                delete("/{id}") {
+                    val id = call.parameters["id"]?.toInt() ?: error("Invalid delete request")
+                    todoCollection.deleteOne(TodoListItem::id eq id)
                     call.respond(HttpStatusCode.OK)
                 }
             }
